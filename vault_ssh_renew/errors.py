@@ -1,0 +1,2 @@
+class RenewError(Exception):
+    pass

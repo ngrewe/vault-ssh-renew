@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "vault-ssh-renew"
+version = "0.1.0"
+description = "Vault SSH Host Key Renewal Tool"
+authors = ["Niels Grewe <niels.grewe@halbordnung.de>"]
+
+[tool.poetry.dependencies]
+click = "^7.1.2"
+environs = "^8.0.0"
+paramiko = "^2.7.1"
+python = "^3.6"
+requests = "^2.24.0"
+
+[tool.poetry.scripts]
+vault-ssh-renew = 'vault_ssh_renew.cli:renew'
