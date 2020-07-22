@@ -1,0 +1,20 @@
+resources:
+  repositories:
+  - repository: tox
+    type: github
+    endpoint: ngrewe
+    name: tox-dev/azure-pipelines-template
+    ref: refs/tags/0.2
+jobs:
+- template: run-tox-env.yml@tox
+  parameters:
+    tox_version: ''
+    jobs:
+      py37-black:
+        image: [linux]
+      py38:
+        image: [linux]
+      py37:
+        image: [linux]
+      py36:
+        image: [linux]
