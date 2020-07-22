@@ -27,8 +27,12 @@ class Config:
         self.renewal_threshold_days: int = env.int("VAULT_RENEW_THRESHOLD_DAYS", 7)
         self.ssh_sign_path: str = env.str("VAULT_SSH_SIGN_PATH")
         self.ssh_hostname = env.str("VAULT_SSH_HOSTNAME", socket.getfqdn())
-        self.ssh_host_key_path: Path = env.path("VAULT_SSH_HOST_KEY_PATH", "/etc/ssh/ssh_host_rsa_key.pub")
-        self.ssh_host_cert_path: Path = env.path("VAULT_SSH_HOST_CERT_PATH", "/etc/ssh/ssh_host_rsa_key-cert.pub")
+        self.ssh_host_key_path: Path = env.path(
+            "VAULT_SSH_HOST_KEY_PATH", "/etc/ssh/ssh_host_rsa_key.pub"
+        )
+        self.ssh_host_cert_path: Path = env.path(
+            "VAULT_SSH_HOST_CERT_PATH", "/etc/ssh/ssh_host_rsa_key-cert.pub"
+        )
         self.on_renew_hook: Optional[str] = env.str("VAULT_ON_RENEW_HOOK", None)
         self.on_failure_hook: Optional[str] = env.str("VAULT_ON_FAILURE_HOOK", None)
         self.debug: bool = env.bool("VAULT_DEBUG", False)

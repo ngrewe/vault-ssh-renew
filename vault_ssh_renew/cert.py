@@ -8,10 +8,10 @@ from paramiko import Message
 
 from .errors import RenewError
 
-class HostCertificateInit(abc.ABC):
 
+class HostCertificateInit(abc.ABC):
     @abc.abstractmethod
-    def read(self) -> 'HostCertificateValidate':
+    def read(self) -> "HostCertificateValidate":
         """
         Read the certificate and key information into memory
         :return:
@@ -21,7 +21,7 @@ class HostCertificateInit(abc.ABC):
 
 class HostCertificateValidate(abc.ABC):
     @abc.abstractmethod
-    def check_renewal_required(self, limit: timedelta) -> 'HostCertificateStatus':
+    def check_renewal_required(self, limit: timedelta) -> "HostCertificateStatus":
         """
         Parse the certificate to find out whether it needs to be renewed
         :param limit: The amount of lifetime the certificate should have left
@@ -33,7 +33,7 @@ class HostCertificateValidate(abc.ABC):
 class HostCertificateStatus:
     needs_renewal: bool
 
-    def __init__(self, parent: 'HostCertificate', needs_renewal: bool):
+    def __init__(self, parent: "HostCertificate", needs_renewal: bool):
         self._parent = parent
         self.needs_renewal = needs_renewal
 
@@ -72,30 +72,35 @@ class HostCertificate:
 
 
 class HostCertificateStatusNoCert(HostCertificateStatus, HostCertificateValidate):
-    def check_renewal_required(self, limit: timedelta) -> 'HostCertificateStatus':
+    def check_renewal_required(self, limit: timedelta) -> "HostCertificateStatus":
         return self
 
 
-CERT_TYPE_MAP: Dict[str, Type['SomeHostCertificateValidate']] = {}
+CERT_TYPE_MAP: Dict[str, Type["SomeHostCertificateValidate"]] = {}
 
 
 def register_for(*cert_types: str):
-    def _register(cls: Type['SomeHostCertificateValidate']) -> Type['SomeHostCertificateValidate']:
+    def _register(
+        cls: Type["SomeHostCertificateValidate"],
+    ) -> Type["SomeHostCertificateValidate"]:
         for cert_type in cert_types:
             if cert_type in CERT_TYPE_MAP:
-                raise RenewError('Type %s already registered to %s' % (cert_type, CERT_TYPE_MAP[cert_type].__name__))
+                raise RenewError(
+                    "Type %s already registered to %s"
+                    % (cert_type, CERT_TYPE_MAP[cert_type].__name__)
+                )
             CERT_TYPE_MAP[cert_type] = cls
         return cls
+
     return _register
 
 
 class SomeHostCertificateValidate(HostCertificateValidate, abc.ABC):
-
     def __init__(self, parent: HostCertificate):
         self._parent = parent
 
     @classmethod
-    def factor(cls, parent: HostCertificate) -> 'SomeHostCertificateValidate':
+    def factor(cls, parent: HostCertificate) -> "SomeHostCertificateValidate":
         return CERT_TYPE_MAP[parent.cert_type](parent)
 
     @abc.abstractmethod
@@ -108,9 +113,12 @@ class SomeHostCertificateValidate(HostCertificateValidate, abc.ABC):
 
     @staticmethod
     def _as_datetime_tuple(a: int, b: int) -> Tuple[datetime, datetime]:
-        return datetime.fromtimestamp(a, timezone.utc), datetime.fromtimestamp(b, timezone.utc)
+        return (
+            datetime.fromtimestamp(a, timezone.utc),
+            datetime.fromtimestamp(b, timezone.utc),
+        )
 
-    def check_renewal_required(self, limit: timedelta) -> 'HostCertificateStatus':
+    def check_renewal_required(self, limit: timedelta) -> "HostCertificateStatus":
         cert = self._parent.cert_data
         embedded_type = cert.get_string().decode("ascii")
         if embedded_type != self._parent.cert_type:
@@ -118,7 +126,9 @@ class SomeHostCertificateValidate(HostCertificateValidate, abc.ABC):
 
         not_before, not_after = self.get_limits(cert)
         now = datetime.now(timezone.utc)
-        return HostCertificateStatus(self._parent, now < not_before or (not_after - now) <= limit)
+        return HostCertificateStatus(
+            self._parent, now < not_before or (not_after - now) <= limit
+        )
 
 
 @register_for("ssh-rsa-cert-v01@openssh.com")
@@ -148,9 +158,11 @@ class DSSCertificateValidate(SomeHostCertificateValidate):
         return self._as_datetime_tuple(msg.get_int64(), msg.get_int64())
 
 
-@register_for("ecdsa-sha2-nistp256-cert-v01@openssh.com",
-              "ecdsa-sha2-nistp384-cert-v01@openssh.com",
-              "ecdsa-sha2-nistp521-cert-v01@openssh.com")
+@register_for(
+    "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+    "ecdsa-sha2-nistp384-cert-v01@openssh.com",
+    "ecdsa-sha2-nistp521-cert-v01@openssh.com",
+)
 class ECDSACertificateValidate(SomeHostCertificateValidate):
     def get_limits(self, msg: Message) -> Tuple[datetime, datetime]:
         _nonce = msg.get_string()
