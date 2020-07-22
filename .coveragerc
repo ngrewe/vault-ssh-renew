@@ -1,0 +1,11 @@
+[run]
+include =
+    */vault_ssh_renew/*
+omit =
+    */vault_ssh_renew/tests/*
+
+[html]
+directory = test-reports/coverage
+
+[xml]
+output = test-reports/coverage.xml
