@@ -33,7 +33,7 @@ def renew():
             traceback.print_exc()
         if config.on_failure_hook:
             os.system(config.on_failure_hook)
-        sys.exit(1)
+        return config.exit(1)
     if not status.needs_renewal:
         click.echo(click.style("No renewal required", fg="green"))
         return
@@ -55,7 +55,7 @@ def renew():
             traceback.print_exc()
         if config.on_failure_hook:
             os.system(config.on_failure_hook)
-        sys.exit(1)
+        return config.exit(1)
     click.echo(click.style("Certificate renewed", fg="green", bold=True))
     if config.on_renew_hook:
         os.system(config.on_renew_hook)

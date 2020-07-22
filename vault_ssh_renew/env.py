@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 import socket
 from typing import Optional
@@ -36,6 +37,10 @@ class Config:
         self.on_renew_hook: Optional[str] = env.str("VAULT_ON_RENEW_HOOK", None)
         self.on_failure_hook: Optional[str] = env.str("VAULT_ON_FAILURE_HOOK", None)
         self.debug: bool = env.bool("VAULT_DEBUG", False)
+
+    @staticmethod
+    def exit(return_code: int):
+        sys.exit(return_code)
 
 
 __all__ = ["Config"]

@@ -60,10 +60,10 @@ class HostCertificate:
         return cast(HostCertificateInit, cls(key_path, cert_path))
 
     def read(self) -> HostCertificateValidate:
-        self.public_key = self._key_path.read_text()
+        self.public_key = self._key_path.read_text(encoding='utf-8')
         if not self._cert_path.exists():
             return HostCertificateStatusNoCert(self, True)
-        certificate_contents = self._cert_path.read_text().split(" ")
+        certificate_contents = self._cert_path.read_text(encoding='utf-8').split(" ")
         if len(certificate_contents) != 2:
             raise RenewError("Invalid certificate file")
         self.cert_type = certificate_contents[0]
@@ -125,6 +125,7 @@ class SomeHostCertificateValidate(HostCertificateValidate, abc.ABC):
             raise RenewError("Certificate type mismatch in certificate")
 
         not_before, not_after = self.get_limits(cert)
+        print(not_after)
         now = datetime.now(timezone.utc)
         return HostCertificateStatus(
             self._parent, now < not_before or (not_after - now) <= limit
