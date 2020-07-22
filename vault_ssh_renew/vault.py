@@ -58,7 +58,9 @@ class VaultRenewer(VaultRenewInit, VaultRenewDone):
 
     def write_certificate(self):
         assert self._signed_key is not None
-        with NamedTemporaryFile(delete=False) as tmp:
+        with NamedTemporaryFile(
+            delete=False, dir=os.path.dirname(str(self._cert_path))
+        ) as tmp:
             tmp.write(self._signed_key.encode("utf-8"))
             tmp.flush()
             shutil.move(tmp.name, str(self._cert_path))
