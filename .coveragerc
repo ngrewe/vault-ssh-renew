@@ -1,5 +1,6 @@
 [run]
 data_file = .tox/.coverage
+parallel = True
 include =
     */vault_ssh_renew/*
 omit =
