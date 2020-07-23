@@ -21,3 +21,18 @@ jobs:
     coverage:
       with_toxenv: 'coverage'
       for_envs: [py38, py37, py36]
+- job: docker_image
+  displayName: Build Docker Image
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  variables:
+    imageName: 'glaux/vault-ssh-renew'
+  steps:
+    - task: Docker@2
+      displayName: Build Docker Image
+      inputs:
+        repository: $(imageName)
+        command: build
+        containerregistrytype: Container Registry
+        dockerRegistryEndpoint: glaux-registry
+        Dockerfile: Dockerfile
