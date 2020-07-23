@@ -10,7 +10,7 @@ jobs:
   parameters:
     tox_version: ''
     jobs:
-      py37-black:
+      py37_black:
         image: [linux]
       py38:
         image: [linux]
