@@ -6,5 +6,10 @@ include =
 omit =
     */vault_ssh_renew/tests/*
 
+[paths]
+source =
+    ./vault_ssh_renew
+    .tox/*/lib/*/site-packages/vault_ssh_renew
+
 [xml]
 output = .tox/coverage.xml
