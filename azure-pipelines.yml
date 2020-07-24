@@ -5,34 +5,56 @@ resources:
     endpoint: ngrewe
     name: tox-dev/azure-pipelines-template
     ref: refs/tags/0.2
-jobs:
-- template: run-tox-env.yml@tox
-  parameters:
-    tox_version: 'tox'
+stages:
+  - stage: test
+    displayName: Run Tests
     jobs:
-      py37_black:
-        image: [linux]
-      py38:
-        image: [linux]
-      py37:
-        image: [linux]
-      py36:
-        image: [linux]
-    coverage:
-      with_toxenv: 'coverage'
-      for_envs: [py38, py37, py36]
-- job: docker_image
-  displayName: Build Docker Image
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  variables:
-    imageName: 'glaux/vault-ssh-renew'
-  steps:
-    - task: Docker@2
+    - template: run-tox-env.yml@tox
+      parameters:
+        tox_version: 'tox'
+        jobs:
+          py37_black:
+            image: [linux]
+          py38:
+            image: [linux]
+          py37:
+            image: [linux]
+          py36:
+            image: [linux]
+        coverage:
+          with_toxenv: 'coverage'
+          for_envs: [py38, py37, py36]
+  - stage: build
+    displayName: Build Packages
+    dependsOn: test
+    condition: succeeded()
+    pool:
+      vmImage: 'ubuntu-18.04'
+    jobs:
+    - job: docker_image
       displayName: Build Docker Image
-      inputs:
-        repository: $(imageName)
-        command: build
-        containerregistrytype: Container Registry
-        dockerRegistryEndpoint: glaux-registry
-        Dockerfile: Dockerfile
+      variables:
+        imageName: 'glaux/vault-ssh-renew'
+      steps:
+        - task: Docker@2
+          displayName: Build Docker Image
+          inputs:
+            repository: $(imageName)
+            command: build
+            Dockerfile: Dockerfile
+        - script: docker save $(imageName):$(Build.BuildId) | gzip > docker-image.tar.gz
+          displayName: 'Archive Docker Image'
+        - publish: docker-image.tar.gz
+          name: docker_image
+    - job: python_dist
+      steps:
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: '3.7'
+            addToPath: true
+            architecture: 'x64'
+        - script: python -m pip install poetry
+          displayName: 'Install build tools'
+        - script: poetry build
+        - publish: dist/*
+          name: python_dists
