@@ -1,0 +1,15 @@
+Source: vault-ssh-renew
+Section: python
+Priority: extra
+Maintainer: Niels Grewe <niels.grewe@halbordnung.de>
+Build-Depends: debhelper (>= 11), python3-all, python3-setuptools, dh-systemd (>= 1.5)
+XS-Python-Version: >=3.6
+Standards-Version: 3.9.5
+
+Package: vault-ssh-renew
+Architecture: all
+Pre-Depends: dpkg (>= 1.16.1), ${misc:Pre-Depends}
+Depends: ${python3:Depends}, ${misc:Depends}, python3-pkg-resources, python3-paramiko (>= 2.0.0), python3-click (>= 6.6), python3-requests (>= 2.12.4)
+Enhances: ssh-server
+Description: Automatic SSH Certificate Renewal Using Vault
+  Automates the process of renewing SSH certificates from a Vault server.

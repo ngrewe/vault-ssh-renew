@@ -78,6 +78,32 @@ stages:
         - publish: dist
           name: python_dists
           displayName: Publish Distributions
+    - job: deb
+      displayName: Build Debian Package
+      dependsOn: [python_dist]
+      pool:
+        vmImage: 'Ubuntu-16.04'
+      steps:
+        - download: current
+          artifact: build.pythondist
+          displayName: Download Python Distributions
+        - script: tar xzf $(Pipeline.Workspace)/build.pythondist/*.tar.gz
+          displayName: Decompress sdist
+        - script: cp -r debian vault-ssh-renew-*/
+          displayName: Bring Debian Control Files into Place
+        - script: |
+            sudo apt-get update -qq
+            sudo apt-get install -yqq debhelper dh-systemd python3-all python3-setuptools
+          displayName: Install Debian Packaging Tools
+        - bash: |
+            pushd vault-ssh-renew-*
+            dpkg-buildpackage -uc -us
+            popd
+          displayName: Build Debian Package
+        - publish: vault-ssh-renew-*.deb
+          name: debian_pkg
+          displayName: Publish Debian Package
+
   - stage: publish
     displayName: Publish Packages
     dependsOn: build
