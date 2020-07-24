@@ -1,3 +1,20 @@
+trigger:
+  branches:
+    include:
+    - "*"
+  tags:
+    include:
+    - "v*"
+pr:
+  branches:
+    include:
+    - '*'
+schedules:
+  - cron: "0 0 * * *"
+    displayName: Daily midnight build
+    branches:
+      include:
+      - master
 resources:
   repositories:
   - repository: tox
