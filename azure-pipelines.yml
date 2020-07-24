@@ -83,6 +83,7 @@ stages:
       dependsOn: [python_dist]
       pool:
         vmImage: 'Ubuntu-18.04'
+      container: ubuntu:18.04
       steps:
         - download: current
           artifact: build.pythondist
@@ -102,7 +103,7 @@ stages:
             mv *.deb $(Build.ArtifactStagingDirectory)
           displayName: Build Debian Package
         - publish: "$(Build.ArtifactStagingDirectory)"
-          name: debian_pkg
+          artifact: deb
           displayName: Publish Debian Package
 
   - stage: publish
