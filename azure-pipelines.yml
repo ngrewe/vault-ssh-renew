@@ -64,7 +64,7 @@ stages:
   - stage: publish
     displayName: Publish Packages
     dependsOn: build
-    condition: succeeded()
+    condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/tags/'))
     pool:
       vmImage: 'ubuntu-18.04'
     jobs:
@@ -78,6 +78,14 @@ stages:
             displayName: Download Docker Image
           - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.tar.gz | docker import - $(imageName):$(Build.BuildId)
             displayName: Import Image Into Daemon
+          - script: docker tag $(imageName):$(Build.BuildId)
+          - task: Docker@1
+            displayName: Push image
+            inputs:
+              command: push
+              containerregistrytype: Container Registry
+              dockerRegistryEndpoint: glaux-registry
+              imageName: $(imageName):$(Build.SourceBranchName)
       - job: pypi_publish
         displayName: Publish PyPi Packages
         steps:
@@ -98,3 +106,15 @@ stages:
           - script: |
               python -m twine upload --skip-existing --verbose --repository azure-pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/build.pythondist/*.*
             displayName: Publish to PyPi
+      - job: github_publish
+        displayName: Publish Github Release
+        steps:
+          - download: current
+            artifact: build.pythondist
+            displayName: Download Python Distributions
+          - task: GithubRelease@0
+            displayName: 'Create GitHub Release'
+            inputs:
+              gitHubConnection: ngrewe
+              repositoryName: ngrewe/vault-ssh-renew
+              assets: $(Pipeline.Workspace)/build.pythondist/*
