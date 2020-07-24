@@ -141,7 +141,7 @@ class RSACertificateValidate(SomeHostCertificateValidate):
         _serial = msg.get_int64()
         _key_type = msg.get_int()
         _key_id = msg.get_string()
-        _principals = msg.get_string()
+        _principals = msg.get_list()
         return self._as_datetime_tuple(msg.get_int64(), msg.get_int64())
 
 
@@ -155,7 +155,7 @@ class DSSCertificateValidate(SomeHostCertificateValidate):
         _serial = msg.get_int64()
         _key_type = msg.get_int()
         _key_id = msg.get_string()
-        _principals = msg.get_string()
+        _principals = msg.get_list()
         return self._as_datetime_tuple(msg.get_int64(), msg.get_int64())
 
 
@@ -172,7 +172,7 @@ class ECDSACertificateValidate(SomeHostCertificateValidate):
         _serial = msg.get_int64()
         _key_type = msg.get_int()
         _key_id = msg.get_string()
-        _principals = msg.get_string()
+        _principals = msg.get_list()
         return self._as_datetime_tuple(msg.get_int64(), msg.get_int64())
 
 
@@ -184,7 +184,7 @@ class Ed25519CertificateValidate(SomeHostCertificateValidate):
         _serial = msg.get_int64()
         _key_type = msg.get_int()
         _key_id = msg.get_string()
-        _principals = msg.get_string()
+        _principals = msg.get_list()
         return self._as_datetime_tuple(msg.get_int64(), msg.get_int64())
 
 
