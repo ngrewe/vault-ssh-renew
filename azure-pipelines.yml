@@ -95,7 +95,8 @@ stages:
             displayName: Download Docker Image
           - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.tar.gz | docker import - $(imageName):$(Build.BuildId)
             displayName: Import Image Into Daemon
-          - script: docker tag $(imageName):$(Build.BuildId)
+          - script: docker tag $(imageName):$(Build.BuildId) $(imageName):$(Build.SourceBranchName)
+            displayName: Tag Image
           - task: Docker@1
             displayName: Push image
             inputs:
@@ -132,6 +133,6 @@ stages:
           - task: GithubRelease@0
             displayName: 'Create GitHub Release'
             inputs:
-              gitHubConnection: ngrewe (OAuth)
+              gitHubConnection: github.com_ngrewe
               repositoryName: ngrewe/vault-ssh-renew
               assets: $(Pipeline.Workspace)/build.pythondist/*
