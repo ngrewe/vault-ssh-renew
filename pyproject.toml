@@ -7,6 +7,7 @@ name = "vault-ssh-renew"
 version = "0.1.0"
 description = "Vault SSH Host Key Renewal Tool"
 authors = ["Niels Grewe <niels.grewe@halbordnung.de>"]
+license = "MIT"
 
 [tool.poetry.dependencies]
 click = "^6.6"

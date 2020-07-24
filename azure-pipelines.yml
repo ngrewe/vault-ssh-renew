@@ -78,3 +78,23 @@ stages:
             displayName: Download Docker Image
           - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.tar.gz | docker import - $(imageName):$(Build.BuildId)
             displayName: Import Image Into Daemon
+      - job: pypi_publish
+        displayName: Publish PyPi Packages
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.7'
+              addToPath: true
+              architecture: 'x64'
+          - script: python -m pip install twine
+            displayName: Install Publishing TOols
+          - download: current
+            artifact: build.pythondist
+            displayName: Download Python Distributions
+          - task: TwineAuthenticate@1
+            displayName: Authenticate PyPi Service Connection
+            inputs:
+              pythonUploadServiceConnection: 'Azure PyPi'
+          - script: |
+              python -m twine upload --skip-existing --verbose --repository vault-ssh-renew --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/build.pythondist/*.*
+            displayName: Publish to PyPi
