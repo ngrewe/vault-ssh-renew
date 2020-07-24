@@ -99,8 +99,9 @@ stages:
             pushd vault-ssh-renew-*
             dpkg-buildpackage -uc -us
             popd
+            mv *.deb $(Build.ArtifactStagingDirectory)
           displayName: Build Debian Package
-        - publish: vault-ssh-renew-*.deb
+        - publish: "$(Build.ArtifactStagingDirectory)"
           name: debian_pkg
           displayName: Publish Debian Package
 
