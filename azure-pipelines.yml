@@ -74,7 +74,7 @@ stages:
           imageName: 'glaux/vault-ssh-renew'
         steps:
           - download: current
-            artifact: docker_image
+            artifact: build.dockerimage
             displayName: Download Docker Image
-          - script: gunzip -c $(Pipeline.Workspace)/docker_image/docker-image.tar.gz | docker import - $(imageName):$(Build.BuildId)
+          - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.tar.gz | docker import - $(imageName):$(Build.BuildId)
             displayName: Import Image Into Daemon
