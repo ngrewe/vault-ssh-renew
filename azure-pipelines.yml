@@ -115,6 +115,6 @@ stages:
           - task: GithubRelease@0
             displayName: 'Create GitHub Release'
             inputs:
-              gitHubConnection: ngrewe
+              gitHubConnection: ngrewe (OAuth)
               repositoryName: ngrewe/vault-ssh-renew
               assets: $(Pipeline.Workspace)/build.pythondist/*
