@@ -83,7 +83,6 @@ stages:
       dependsOn: [python_dist]
       pool:
         vmImage: 'Ubuntu-18.04'
-      container: ubuntu:18.04
       steps:
         - download: current
           artifact: build.pythondist
