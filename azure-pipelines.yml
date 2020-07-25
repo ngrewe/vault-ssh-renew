@@ -105,7 +105,7 @@ stages:
           displayName: Bring Debian Control Files into Place
         - script: |
             sudo apt-get update -qq
-            sudo apt-get install -yqq debhelper dh-systemd python3-all python3-setuptools
+            sudo apt-get install -yqq debhelper dh-systemd dh-python python3-all python3-setuptools
           env:
             DEBIAN_FRONTEND: noninteractive
           displayName: Install Debian Packaging Tools
