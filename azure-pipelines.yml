@@ -81,9 +81,20 @@ stages:
     - job: deb
       displayName: Build Debian Package
       dependsOn: [python_dist]
+      strategy:
+        matrix:
+          buster:
+            containerImage: debian
+            containerTag: buster
+          bionic:
+            containerImage: ubuntu
+            containerTag: bionic
+          focal:
+            containerImage: ubuntu
+            containerTag: focal
       pool:
         vmImage: 'Ubuntu-18.04'
-      container: glaux/ubuntu:bionic
+      container: glaux/$(containerImage):$(containerTag)
       steps:
         - download: current
           artifact: build.pythondist
@@ -103,7 +114,7 @@ stages:
             mv *.deb $(Build.ArtifactStagingDirectory)
           displayName: Build Debian Package
         - publish: "$(Build.ArtifactStagingDirectory)"
-          artifact: deb
+          artifact: deb-$(containerTag)
           displayName: Publish Debian Package
 
   - stage: publish
