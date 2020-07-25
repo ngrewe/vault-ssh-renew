@@ -169,11 +169,18 @@ stages:
         displayName: Publish Github Release
         steps:
           - download: current
-            artifact: build.pythondist
-            displayName: Download Python Distributions
+            displayName: Download Distributions
+          - bash: |
+              for dist in buster bionic focal; do
+                base=`basename $(Pipeline.Workspace)/deb-${dist}/*.deb .deb`
+                mv deb-${dist}/${base}.deb $(Build.ArtifactStagingDirectory)/${base}-${dist}.deb
+              done
+            displayName: "Rename Debian Packages"
           - task: GithubRelease@0
             displayName: 'Create GitHub Release'
             inputs:
               gitHubConnection: github.com_ngrewe
               repositoryName: ngrewe/vault-ssh-renew
-              assets: $(Pipeline.Workspace)/build.pythondist/*
+              assets: |
+                $(Pipeline.Workspace)/build.pythondist/*
+                $(Build.ArtifactStagingDirectory)/*.deb
