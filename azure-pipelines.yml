@@ -173,7 +173,7 @@ stages:
           - bash: |
               for dist in buster bionic focal; do
                 base=`basename $(Pipeline.Workspace)/deb-${dist}/*.deb .deb`
-                mv deb-${dist}/${base}.deb $(Build.ArtifactStagingDirectory)/${base}-${dist}.deb
+                mv $(Pipeline.Workspace)/deb-${dist}/${base}.deb $(Build.ArtifactStagingDirectory)/${base}-${dist}.deb
               done
             displayName: "Rename Debian Packages"
           - task: GithubRelease@0
