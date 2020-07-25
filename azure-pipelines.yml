@@ -106,6 +106,8 @@ stages:
         - script: |
             sudo apt-get update -qq
             sudo apt-get install -yqq debhelper dh-systemd python3-all python3-setuptools
+          env:
+            DEBIAN_FRONTEND: noninteractive
           displayName: Install Debian Packaging Tools
         - bash: |
             pushd vault-ssh-renew-*
