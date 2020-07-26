@@ -1,7 +1,6 @@
 import socket
 from datetime import timedelta
 import os
-import sys
 import traceback
 from pathlib import Path
 from urllib.parse import urlparse
