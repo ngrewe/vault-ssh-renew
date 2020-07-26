@@ -58,9 +58,19 @@ class VaultRenewer(VaultRenewInit, VaultRenewDone):
 
     def write_certificate(self):
         assert self._signed_key is not None
-        with NamedTemporaryFile(
-            delete=False, dir=os.path.dirname(str(self._cert_path))
-        ) as tmp:
+
+        try:
+            temp_file = NamedTemporaryFile(
+                delete=False, dir=os.path.dirname(str(self._cert_path))
+            )
+        except OSError:
+            # We might not be allowed to write to the certificate directory.
+            # In that case, we fall back to TMPDIR. This is slightly less
+            # safe if TMPDIR is on a different device since we cannot atomically
+            # switch out the certificate.
+            temp_file = NamedTemporaryFile(delete=False)
+
+        with temp_file as tmp:
             tmp.write(self._signed_key.encode("utf-8"))
             tmp.flush()
             shutil.move(tmp.name, str(self._cert_path))
