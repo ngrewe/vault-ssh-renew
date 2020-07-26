@@ -1,3 +1,9 @@
+vault-ssh-renew (0.2.0a5-1) unstable; urgency=medium
+
+  * Install systemd service
+
+ -- Niels Grewe <thebeing@halbordnung.de>  Sat, 26 Jul 2020 16:10:00 +0200
+
 vault-ssh-renew (0.2.0a4-1) unstable; urgency=medium
 
   * Initial release.

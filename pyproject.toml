@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "vault-ssh-renew"
-version = "0.2.0-alpha.4"
+version = "0.2.0-alpha.5"
 description = "Vault SSH Host Key Renewal Tool"
 authors = ["Niels Grewe <niels.grewe@halbordnung.de>"]
 license = "MIT"

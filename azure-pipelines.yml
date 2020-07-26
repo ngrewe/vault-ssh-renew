@@ -9,12 +9,6 @@ pr:
   branches:
     include:
     - '*'
-schedules:
-  - cron: "0 0 * * *"
-    displayName: Daily midnight build
-    branches:
-      include:
-      - master
 resources:
   repositories:
   - repository: tox
@@ -165,6 +159,29 @@ stages:
           - script: |
               python -m twine upload --skip-existing --verbose --repository azure-pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/build.pythondist/*.*
             displayName: Publish to PyPi
+      - job: bintray_publish
+        displayName: Publish Debian Packages to Bintray
+        variables:
+          - group: "Bintray Deployment (glaux.io org)"
+        steps:
+          - download: current
+            displayName: Download Distributions
+          - bash: |
+              set -eux
+
+              function publish {
+                  distribution=$1
+                  package=`ls -1 $(Pipeline.Workspace)/deb-${distribution}/*.deb | head -n1`
+                  base_name=`basename ${package}`
+                  version=`echo ${base_name} | sed 's/vault-ssh-renew_\(.*\)_all.*\.deb/\1/'`
+                  curl -T ${package} -u$(bintray_username):$(bintray_api_key) \
+                    -H "X-GPG-PASSPHRASE: $(bintray_gpg_passphrase)" \
+                    "$(bintray_base_url)vault-ssh-renew/$version/$distribution-$base_name;deb_distribution=$distribution;deb_component=main;deb_architecture=all;publish=1"
+              }
+              for distribution in buster bionic focal; do
+                publish $distribution
+              done
+            displayName: "Upload to Bintray"
       - job: github_publish
         displayName: Publish Github Release
         steps:
