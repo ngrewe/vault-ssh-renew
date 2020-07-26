@@ -1,0 +1,48 @@
+#!/bin/sh
+
+CONFIGFILE=/etc/default/vault-ssh-renew
+. /usr/share/debconf/confmodule
+
+set -e
+
+# Create empty config if it doesn't exist
+if [ ! -e $CONFIGFILE ]; then
+    echo "VAULT_ADDR=" >> $CONFIGFILE
+    echo "VAULT_SSH_SIGN_PATH=" >> $CONFIGFILE
+    echo "VAULT_TOKEN=" >> $CONFIGFILE
+    chmod 0640 $CONFIGFILE
+fi
+
+# Read variables from debconf
+db_get vault-ssh-renew/addr
+VAULT_ADDR="$RET"
+
+db_get vault-ssh-renew/sign-path
+VAULT_SSH_SIGN_PATH="$RET"
+
+db_get vault-ssh-renew/token
+VAULT_TOKEN="$RET"
+# Clear the token from the DB again
+db_set vault-ssh-renew/token ""
+
+
+TEMPFILE=$(mktemp $CONFIGFILE.XXXXXX)
+
+cp -a -f $CONFIGFILE $TEMPFILE
+
+test -z "$VAULT_ADDR" || \
+    grep -Eq '^ *VAULT_ADDR=' $CONFIGFILE || \
+    echo "VAULT_ADDR=" >> $CONFIGFILE
+test -z "$VAULT_SSH_SIGN_PATH" || \
+    grep -Eq '^ *VAULT_SSH_SIGN_PATH=' $CONFIGFILE || \
+    echo "VAULT_SSH_SIGN_PATH=" >> $CONFIGFILE
+test -z "$VAULT_TOKEN" || \
+    grep -Eq '^ *VAULT_TOKEN=' $CONFIGFILE || \
+    echo "VAULT_TOKEN=" >> $CONFIGFILE
+
+sed -e "s|^ *VAULT_ADDR=.*|VAULT_ADDR=\"$VAULT_ADDR\"|" \
+    -e "s|^ *VAULT_SSH_SIGN_PATH=.*|VAULT_SSH_SIGN_PATH=\"$VAULT_SSH_SIGN_PATH\"|" \
+    -e "s/^ *VAULT_TOKEN=.*/VAULT_TOKEN=\"$VAULT_TOKEN\"/" \
+    < $CONFIGFILE > $TEMPFILE
+
+mv -f $TEMPFILE $CONFIGFILE

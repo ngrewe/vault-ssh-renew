@@ -1,0 +1,19 @@
+Template: vault-ssh-renew/addr
+Type: string
+Description: HashiCorp Vault Address
+ Specify the URL of the Vault server to connect to.
+
+Template: vault-ssh-renew/sign-path
+Type: string
+Default: ssh/sign/host
+Description: SSH Signing Role Path
+ This is the path to the signing endpoint of the Vault server.
+ It consists of the mount point of the SSH secrets engine,
+ followed by `sign' and the role use for signing.
+
+Template: vault-ssh-renew/token
+Type: password
+Description: Vault Token
+ The token to use when authenticating to Vault. Please note
+ that vault-ssh-renew does only take care of renewing SSH
+ certificates, not the token itself.

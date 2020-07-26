@@ -8,7 +8,7 @@ Standards-Version: 3.9.5
 
 Package: vault-ssh-renew
 Architecture: all
-Pre-Depends: dpkg (>= 1.16.1), ${misc:Pre-Depends}
+Pre-Depends: dpkg (>= 1.16.1), debconf (>= 0.5), ${misc:Pre-Depends}
 Depends: ${python3:Depends}, ${misc:Depends}, python3-pkg-resources, python3-paramiko (>= 2.0.0), python3-click (>= 6.6), python3-requests (>= 2.12.4)
 Enhances: ssh-server
 Description: Automatic SSH Certificate Renewal Using Vault
