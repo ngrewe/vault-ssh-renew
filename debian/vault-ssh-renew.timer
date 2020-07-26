@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodically renew SSH certificates using Vault
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target

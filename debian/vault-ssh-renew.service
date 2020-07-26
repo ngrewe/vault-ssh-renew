@@ -1,0 +1,9 @@
+[Unit]
+Description=Renew SSH certificates using Vault
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/default/vault-ssh-renew
+ExecStart=/usr/bin/vault-ssh-renew
+ExecStopPost=-+/bin/systemctl reload ssh
