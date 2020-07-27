@@ -1,0 +1,1 @@
+0 0 * * * /vault-ssh-renew-periodic > /proc/$(cat /run/crond.pid)/fd/1 2>/proc/$(cat /run/crond.pid)/fd/2

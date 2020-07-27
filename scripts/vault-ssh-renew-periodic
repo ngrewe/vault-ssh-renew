@@ -1,0 +1,5 @@
+#!/bin/sh -eu
+
+JITTER=$((RANDOM % ${MAX_JITTER_SECONDS}))
+sleep ${JITTER}
+/venv/bin/vault-ssh-renew

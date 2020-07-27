@@ -53,9 +53,20 @@ stages:
             repository: $(imageName)
             command: build
             Dockerfile: Dockerfile
-        - script: docker save $(imageName):$(Build.BuildId) | gzip > docker-image.tar.gz
+        - task: Docker@2
+          displayName: Build Docker Image (cron)
+          inputs:
+            repository: $(imageName)
+            command: build
+            Dockerfile: Dockerfile.cron
+            arguments: '--build-arg BASE_IMG=$(imageName):$(Build.BuildId)'
+            tags: |
+              $(Build.BuildId).cron
+        - script: docker save $(imageName):$(Build.BuildId) | gzip > $(Build.ArtifactStagingDirectory)/docker-image.tar.gz
           displayName: 'Archive Docker Image'
-        - publish: docker-image.tar.gz
+        - script: docker save $(imageName):$(Build.BuildId).cron | gzip > $(Build.ArtifactStagingDirectory)/docker-image.cron.tar.gz
+          displayName: 'Archive Docker Image (cron)'
+        - publish: $(Build.ArtifactStagingDirectory)
           name: docker_image
     - job: python_dist
       displayName: Build Python Distributions
@@ -128,10 +139,14 @@ stages:
           - download: current
             artifact: build.dockerimage
             displayName: Download Docker Image
-          - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.tar.gz | docker import - $(imageName):$(Build.BuildId)
+          - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.tar.gz | docker load
             displayName: Import Image Into Daemon
+          - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.cron.tar.gz | docker load
+            displayName: Import Image Into Daemon (cron)
           - script: docker tag $(imageName):$(Build.BuildId) $(imageName):$(Build.SourceBranchName)
             displayName: Tag Image
+          - script: docker tag $(imageName):$(Build.BuildId).cron $(imageName):$(Build.SourceBranchName).cron
+            displayName: Tag Image (cron)
           - task: Docker@1
             displayName: Push image
             inputs:
@@ -139,6 +154,13 @@ stages:
               containerregistrytype: Container Registry
               dockerRegistryEndpoint: glaux-registry
               imageName: $(imageName):$(Build.SourceBranchName)
+          - task: Docker@1
+            displayName: Push image (cron)
+            inputs:
+              command: push
+              containerregistrytype: Container Registry
+              dockerRegistryEndpoint: glaux-registry
+              imageName: $(imageName):$(Build.SourceBranchName).cron
       - job: pypi_publish
         displayName: Publish PyPi Packages
         steps:
