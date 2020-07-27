@@ -40,7 +40,7 @@ DEFAULT_VAULT_ADDR = "http://127.0.0.1:8200"
 @click.option(
     "-t",
     "--vault-token",
-    envvar="VAULT_TOKEN",
+    default=Config.token_from_env,
     help="Token for authentication against Vault.",
     required=True,
 )
@@ -52,10 +52,13 @@ DEFAULT_VAULT_ADDR = "http://127.0.0.1:8200"
     required=True,
 )
 @click.option(
-    "--ssh-hostname",
-    envvar="VAULT_SSH_HOSTNAME",
-    help="The hostname to use as a principal, if not specified autodetection will be attempted.",
-    default=lambda: socket.getfqdn(),
+    "--ssh-principal",
+    envvar="VAULT_SSH_PRINCIPALS",
+    help="The principals to request for the certificate. Defaults to the FQDN of the host. "
+    "This option may be specified more than once or supplied via the VAULT_SSH_PRINCIPALS "
+    "environment variable, with individual entries separated by spaces.",
+    multiple=True,
+    default=lambda: [socket.getfqdn(),],
 )
 @click.option(
     "-w",
@@ -93,8 +96,10 @@ def renew(**kwargs):
 
     All options can also be supplied using environment variables with a `VAULT_SSH_` prefix,
     except for the token and address options, which use the customary environment variables
-    `VAULT_ADDR` and `VAULT_TOKEN`.
+    `VAULT_ADDR` and `VAULT_TOKEN`. The Vault token can also be read from the file specified
+    by the `VAULT_TOKEN_FILE` environment variable.
     """
+    kwargs["ssh_principals"] = kwargs.pop("ssh_principal")
     run_renew_workflow(Config(**kwargs))
 
 
@@ -124,7 +129,7 @@ def run_renew_workflow(config: Config):
             config.token,
             config.ssh_sign_path,
             status.public_key,
-            config.ssh_hostname,
+            config.ssh_principals,
             config.ssh_host_cert_path,
         ).renew().write_certificate()
     except RenewError:

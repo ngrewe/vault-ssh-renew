@@ -27,7 +27,9 @@ def mock_config(datafiles):
         token = "mytoken"
         renewal_threshold_days = 7
         ssh_sign_path = "ssh/sign/host"
-        ssh_hostname = "nowhere.example.com"
+        ssh_principals = [
+            "nowhere.example.com",
+        ]
         ssh_host_key_path = datafiles / "rsa.pub"
         ssh_host_cert_path = datafiles / "rsa-cert.pub"
         on_renew_hook = "touch " + os.path.join(str(datafiles), "renewed")

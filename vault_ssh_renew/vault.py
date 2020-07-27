@@ -3,7 +3,7 @@ import os
 import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Dict, Optional
+from typing import Collection, Dict, Optional
 from urllib.parse import ParseResult
 
 import requests
@@ -27,7 +27,7 @@ class VaultRenewer(VaultRenewInit, VaultRenewDone):
     _url: str
     _token: str
     _public_key: str
-    _hostname: str
+    _principals: Collection[str]
     _cert_path: Path
     _signed_key: Optional[str]
 
@@ -37,13 +37,13 @@ class VaultRenewer(VaultRenewInit, VaultRenewDone):
         token: str,
         sign_path: str,
         public_key: str,
-        hostname: str,
+        principals: Collection[str],
         cert_path: Path,
     ):
         self._url = addr.geturl() + "/v1/" + sign_path
         self._public_key = public_key
         self._token = token
-        self._hostname = hostname
+        self._principals = principals
         self._cert_path = cert_path
 
     def renew(self) -> VaultRenewDone:
@@ -79,7 +79,7 @@ class VaultRenewer(VaultRenewInit, VaultRenewDone):
         return {
             "cert_type": "host",
             "public_key": self._public_key,
-            "valid_principals": self._hostname,
+            "valid_principals": ",".join(self._principals),
         }
 
     @classmethod
@@ -89,10 +89,10 @@ class VaultRenewer(VaultRenewInit, VaultRenewDone):
         token: str,
         sign_path: str,
         public_key: str,
-        hostname: str,
+        principals: Collection[str],
         cert_path: Path,
     ) -> VaultRenewInit:
-        return cls(addr, token, sign_path, public_key, hostname, cert_path)
+        return cls(addr, token, sign_path, public_key, principals, cert_path)
 
 
 __all__ = ["VaultRenewer"]

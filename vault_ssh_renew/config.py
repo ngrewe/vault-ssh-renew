@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
-from typing import Optional
+import os
+from typing import Collection, Optional
 from urllib.parse import ParseResult
 
 
@@ -10,7 +11,7 @@ class Config:
     token: str
     renewal_threshold_days: int
     ssh_sign_path: str
-    ssh_hostname: str
+    ssh_principals: Collection[str]
     ssh_host_key_path: Path
     ssh_host_cert_path: Path
     on_renew_hook: Optional[str]
@@ -24,7 +25,7 @@ class Config:
         vault_addr: ParseResult,
         vault_token: str,
         ssh_sign_path: str,
-        ssh_hostname: str,
+        ssh_principals: Collection[str],
         renewal_threshold_days: int,
         on_renew: Optional[str],
         on_failure: Optional[str],
@@ -35,7 +36,7 @@ class Config:
         self.ssh_host_cert_path = ssh_host_cert_path
         self.token = vault_token
         self.ssh_sign_path = ssh_sign_path
-        self.ssh_hostname = ssh_hostname
+        self.ssh_principals = ssh_principals
         self.renewal_threshold_days = renewal_threshold_days
         self.on_renew_hook = on_renew
         self.on_failure_hook = on_failure
@@ -44,6 +45,17 @@ class Config:
     @staticmethod
     def exit(return_code: int):
         sys.exit(return_code)
+
+    @staticmethod
+    def token_from_env() -> Optional[str]:
+        token: Optional[str] = None
+        if "VAULT_TOKEN" in os.environ and os.environ["VAULT_TOKEN"]:
+            token = os.environ["VAULT_TOKEN"]
+            os.environ["VAULT_TOKEN"] = ""
+        if "VAULT_TOKEN_FILE" in os.environ:
+            with open(os.environ["VAULT_TOKEN_FILE"], "r") as f:
+                token = f.readline().strip()
+        return token
 
 
 __all__ = ["Config"]

@@ -1,4 +1,4 @@
-from hamcrest import assert_that, has_entries
+from hamcrest import assert_that, has_entries, all_of, contains_string
 import pytest
 from requests import Request
 
@@ -12,7 +12,7 @@ def test_successfully_renews(mock_config, success_renewal_mock):
         mock_config.token,
         mock_config.ssh_sign_path,
         "bar",
-        mock_config.ssh_hostname,
+        mock_config.ssh_principals,
         mock_config.ssh_host_cert_path,
     ).renew().write_certificate()
     req: Request = success_renewal_mock.last_request
@@ -23,7 +23,12 @@ def test_successfully_renews(mock_config, success_renewal_mock):
             {
                 "cert_type": "host",
                 "public_key": "bar",
-                "valid_principals": mock_config.ssh_hostname,
+                "valid_principals": all_of(
+                    *[
+                        contains_string(principal)
+                        for principal in mock_config.ssh_principals
+                    ]
+                ),
             }
         ),
     )
@@ -38,6 +43,6 @@ def test_raises_on_error(mock_config):
             mock_config.token,
             mock_config.ssh_sign_path,
             "bar",
-            mock_config.ssh_hostname,
+            mock_config.ssh_principals,
             mock_config.ssh_host_cert_path,
         ).renew().write_certificate()
