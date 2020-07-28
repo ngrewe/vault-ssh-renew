@@ -1,3 +1,9 @@
+vault-ssh-renew (0.2.0-1) unstable; urgency=medium
+
+  * Stabilised release
+
+ -- Niels Grewe <niels.grewe@halbordnung.de>  Tue, 28 Jul 2020 10:57:00 +0200
+
 vault-ssh-renew (0.2.0a7-1) unstable; urgency=medium
 
   * Improved cron container
