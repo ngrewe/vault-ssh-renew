@@ -2,8 +2,9 @@ ARG BASE_IMG=glaux/vault-ssh-renew:latest
 FROM ${BASE_IMG}
 ENV MAX_JITTER_SECONDS=600
 RUN apk add --no-cache tini
-ADD scripts/vault-ssh-renew-periodic /
-ADD scripts/vault-ssh-renew-periodic.crontab /etc/cron.d/vault-ssh-renew-periodic
+ADD docker/vault-ssh-renew-periodic /
+ADD docker/entrypoint.sh /
+ADD docker/vault-ssh-renew-periodic.crontab /etc/cron.d/vault-ssh-renew-periodic
 RUN crontab /etc/cron.d/vault-ssh-renew-periodic
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/usr/sbin/crond", "-f"]
+CMD [ "/entrypoint.sh" ]
