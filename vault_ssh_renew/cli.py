@@ -35,7 +35,7 @@ DEFAULT_VAULT_ADDR = "http://127.0.0.1:8200"
     envvar="VAULT_ADDR",
     type=URLParameterType(),
     default=urlparse(DEFAULT_VAULT_ADDR),
-    help="Address under which vault can be reached.",
+    help="Address under which Vault can be reached.",
 )
 @click.option(
     "-t",
