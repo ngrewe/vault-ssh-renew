@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vault-ssh-renew
+  labels:
+    app.kubernetes.io/name: 'vault-ssh-renew'
+spec:
+  selector:
+    matchLabels:
+      name: vault-ssh-renew
+  template:
+    metadata:
+      labels:
+        name: vault-ssh-renew
+        app.kubernetes.io/name: 'vault-ssh-renew'
+    spec:
+      containers:
+        - name: vault-ssh-renew
+          image: glaux/vault-ssh-renew:latest.cron
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 150m
+            limits:
+              memory: 500Mi
+              cpu: 300m
+          volumeMounts:
+            - name: ssh-keys
+              mountPath: /etc/ssh
+            - name: vault-secret
+              mountPath: /etc/vault
+          envFrom:
+            - configMapRef:
+                name: vault-ssh-config
+          env:
+            - name: VAULT_SSH_PRINCIPALS
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: VAULT_TOKEN_FILE
+              value: /etc/vault/token
+      volumes:
+        - name: ssh-keys
+          hostPath:
+            path: /etc/ssh
+        - name: vault-secret
+          secret:
+            secretName: vault-secret
