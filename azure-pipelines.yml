@@ -143,24 +143,32 @@ stages:
             displayName: Import Image Into Daemon
           - script: gunzip -c $(Pipeline.Workspace)/build.dockerimage/docker-image.cron.tar.gz | docker load
             displayName: Import Image Into Daemon (cron)
-          - script: docker tag $(imageName):$(Build.BuildId) $(imageName):$(Build.SourceBranchName)
+          - script: |
+              docker tag $(imageName):$(Build.BuildId) $(imageName):$(Build.SourceBranchName)
+              docker tag $(imageName):$(Build.BuildId) $(imageName):latest
             displayName: Tag Image
-          - script: docker tag $(imageName):$(Build.BuildId).cron $(imageName):$(Build.SourceBranchName).cron
+          - script: |
+              docker tag $(imageName):$(Build.BuildId).cron $(imageName):$(Build.SourceBranchName).cron
+              docker tag $(imageName):$(Build.BuildId).cron $(imageName):latest.cron
             displayName: Tag Image (cron)
-          - task: Docker@1
+          - task: Docker@2
             displayName: Push image
             inputs:
               command: push
-              containerregistrytype: Container Registry
-              dockerRegistryEndpoint: glaux-registry
-              imageName: $(imageName):$(Build.SourceBranchName)
-          - task: Docker@1
+              containerRegistry: glaux-registry
+              repository: $(imageName)
+              tags: |
+                latest
+                $(Build.SourceBranchName)
+          - task: Docker@2
             displayName: Push image (cron)
             inputs:
               command: push
-              containerregistrytype: Container Registry
-              dockerRegistryEndpoint: glaux-registry
-              imageName: $(imageName):$(Build.SourceBranchName).cron
+              containerRegistry: glaux-registry
+              repository: $(imageName)
+              tags: |
+                latest
+                $(Build.SourceBranchName).cron
       - job: pypi_publish
         displayName: Publish PyPi Packages
         steps:
