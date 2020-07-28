@@ -132,6 +132,10 @@ class SomeHostCertificateValidate(HostCertificateValidate, abc.ABC):
         )
 
 
+# What follows are decoding classes for the SSH certificates according to
+# https://github.com/openssh/openssh-portable/blob/664deef95a2e770812533439b8bdd3f3c291ae59/PROTOCOL.certkeys
+
+
 @register_for("ssh-rsa-cert-v01@openssh.com")
 class RSACertificateValidate(SomeHostCertificateValidate):
     def get_limits(self, msg: Message) -> Tuple[datetime, datetime]:
@@ -145,7 +149,8 @@ class RSACertificateValidate(SomeHostCertificateValidate):
         return self._as_datetime_tuple(msg.get_int64(), msg.get_int64())
 
 
-class DSSCertificateValidate(SomeHostCertificateValidate):
+@register_for("ssh-dss-cert-v01@openssh.com")
+class DSACertificateValidate(SomeHostCertificateValidate):
     def get_limits(self, msg: Message) -> Tuple[datetime, datetime]:
         _nonce = msg.get_string()
         _p = msg.get_mpint()
