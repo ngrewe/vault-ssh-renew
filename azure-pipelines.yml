@@ -167,7 +167,7 @@ stages:
               containerRegistry: glaux-registry
               repository: $(imageName)
               tags: |
-                latest
+                latest.cron
                 $(Build.SourceBranchName).cron
       - job: pypi_publish
         displayName: Publish PyPi Packages
